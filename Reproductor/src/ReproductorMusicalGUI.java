@@ -81,17 +81,15 @@ public class ReproductorMusicalGUI extends JFrame {
     private void agregarCancion() {
         JFileChooser fileChooser = new JFileChooser();
 
-        // Filtro para que solo se muestren archivos con extensión .mp3
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos MP3", "mp3"));
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File archivo = fileChooser.getSelectedFile();
             String nombreArchivo = archivo.getName().toLowerCase();
 
-            // Verificar si el archivo tiene extensión ".mp3"
             if (!nombreArchivo.endsWith(".mp3")) {
                 JOptionPane.showMessageDialog(this, "Error: Solo se permiten archivos MP3.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;  // Salir del método sin agregar el archivo
+                return; 
             }
 
             try {
@@ -115,10 +113,12 @@ public class ReproductorMusicalGUI extends JFrame {
                     }
                 }
 
-                // Agregar la ruta del archivo al crear la canción
                 Cancion nuevaCancion = new Cancion(nombre, artista, duracion, tipoMusica, imagen, archivo.getPath());
                 listaCanciones.agregarCancion(nuevaCancion);
                 JOptionPane.showMessageDialog(this, "Canción agregada a la lista.");
+
+                mostrarTodasLasCanciones();
+
             } catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Error al cargar el archivo mp3.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -133,27 +133,38 @@ public class ReproductorMusicalGUI extends JFrame {
     }
 
     private void seleccionarCancion() {
-        String input = JOptionPane.showInputDialog("Selecciona el índice de la canción:");
-        int indice = Integer.parseInt(input);
-        cancionActual = listaCanciones.obtenerCancion(indice);
-        if (cancionActual != null) {
-            // Mostrar los detalles de la canción
-            lblInfo.setText("<html>"
-                    + "Nombre: " + cancionActual.getNombre() + "<br>"
-                    + "Artista: " + cancionActual.getArtista() + "<br>"
-                    + "Duración: " + cancionActual.getDuracion() + "<br>"
-                    + "Tipo de música: " + cancionActual.getTipoMusica()
-                    + "</html>");
+        mostrarTodasLasCanciones();
 
-            // Mostrar la imagen si existe
-            if (cancionActual.getImagen() != null) {
-                lblImagen.setIcon(cancionActual.getImagen());
+        String input = JOptionPane.showInputDialog("Selecciona el índice de la canción para reproducir:");
+        try {
+            int indice = Integer.parseInt(input);
+            cancionActual = listaCanciones.obtenerCancion(indice);
+
+            if (cancionActual != null) {
+                lblImagen.removeAll(); 
+                lblImagen.revalidate();
+                lblImagen.repaint();
+
+                lblInfo.setText("<html>"
+                        + "Nombre: " + cancionActual.getNombre() + "<br>"
+                        + "Artista: " + cancionActual.getArtista() + "<br>"
+                        + "Duración: " + cancionActual.getDuracion() + "<br>"
+                        + "Tipo de música: " + cancionActual.getTipoMusica()
+                        + "</html>");
+
+                if (cancionActual.getImagen() != null) {
+                    Image imagenEscalada = cancionActual.getImagen().getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+                    lblImagen.setIcon(new ImageIcon(imagenEscalada));
+                    lblImagen.setText("");
+                } else {
+                    lblImagen.setText("No hay imagen disponible.");
+                    lblImagen.setIcon(null);
+                }
             } else {
-                lblImagen.setText("No hay imagen disponible.");
-                lblImagen.setIcon(null);
+                JOptionPane.showMessageDialog(this, "Índice no válido.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "Índice no válido.");
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Por favor, ingrese un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -182,10 +193,10 @@ public class ReproductorMusicalGUI extends JFrame {
         if (cancionActual != null) {
             try {
                 if (pausado) {
-                    player.resume();  // Reanudar desde donde se pausó
+                    player.resume();
                 } else {
-                    detener();  // Detener cualquier reproducción previa
-                    player.open(new File(cancionActual.getRutaArchivo()));  // Ahora usamos getRutaArchivo()
+                    detener(); 
+                    player.open(new File(cancionActual.getRutaArchivo()));  
                     player.play();
                 }
                 pausado = false;
@@ -200,7 +211,7 @@ public class ReproductorMusicalGUI extends JFrame {
     private void pausar() {
         if (!pausado && player != null) {
             try {
-                player.pause();  // Pausar la reproducción
+                player.pause(); 
                 pausado = true;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -211,12 +222,55 @@ public class ReproductorMusicalGUI extends JFrame {
     private void detener() {
         try {
             if (player != null) {
-                player.stop();  // Detener la reproducción completamente
+                player.stop(); 
             }
             pausado = false;
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void mostrarTodasLasCanciones() {
+        JPanel panelCanciones = new JPanel();
+        panelCanciones.setLayout(new GridBagLayout()); 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5); 
+        gbc.fill = GridBagConstraints.BOTH;
+
+        Cancion actual = listaCanciones.getCabeza();
+        int indice = 0;
+
+        while (actual != null) {
+            gbc.gridx = 0;  
+            gbc.gridy = indice; 
+
+            if (actual.getImagen() != null) {
+                ImageIcon imagenEscalada = new ImageIcon(actual.getImagen().getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH));
+                JLabel lblImagenCancion = new JLabel(imagenEscalada);
+                panelCanciones.add(lblImagenCancion, gbc);
+            }
+
+            gbc.gridx = 1;  
+            gbc.gridy = indice; 
+
+            JLabel lblInfoCancion = new JLabel("<html>"
+                    + "Índice: " + indice + "<br>"
+                    + "Nombre: " + actual.getNombre() + "<br>"
+                    + "Artista: " + actual.getArtista() + "<br>"
+                    + "Duración: " + actual.getDuracion() + "<br>"
+                    + "Tipo de música: " + actual.getTipoMusica()
+                    + "</html>");
+            panelCanciones.add(lblInfoCancion, gbc);
+
+            actual = actual.getSiguiente();
+            indice++;
+        }
+
+        lblImagen.removeAll(); 
+        lblImagen.setLayout(new BorderLayout());
+        lblImagen.add(new JScrollPane(panelCanciones), BorderLayout.CENTER);  
+        lblImagen.revalidate();  
+        lblImagen.repaint();
     }
 
     public static void main(String[] args) {

@@ -8,10 +8,15 @@
  * @author Dennisse
  */
 public class ListaCanciones {
-    private Cancion cabeza;  // Primer elemento de la lista enlazada
+
+    private Cancion cabeza; 
 
     public ListaCanciones() {
         this.cabeza = null;
+    }
+
+    public Cancion getCabeza() {
+        return cabeza;
     }
 
     public void agregarCancion(Cancion nuevaCancion) {
@@ -36,10 +41,9 @@ public class ListaCanciones {
             actual = actual.getSiguiente();
             contador++;
         }
-        return null;  // Si el índice no es válido
+        return null; 
     }
 
-    // Método para obtener el tamaño de la lista (si es necesario)
     public int getTamano() {
         int tamano = 0;
         Cancion actual = cabeza;

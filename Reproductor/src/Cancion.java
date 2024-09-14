@@ -16,7 +16,7 @@ public class Cancion {
     private String duracion;
     private String tipoMusica;
     private ImageIcon imagen;
-    private String rutaArchivo;  // Ruta del archivo de la canción
+    private String rutaArchivo;  
     private Cancion siguiente;
 
     public Cancion(String nombre, String artista, String duracion, String tipoMusica, ImageIcon imagen, String rutaArchivo) {
@@ -25,17 +25,16 @@ public class Cancion {
         this.duracion = duracion;
         this.tipoMusica = tipoMusica;
         this.imagen = imagen;
-        this.rutaArchivo = rutaArchivo;  // Inicializamos la ruta del archivo
+        this.rutaArchivo = rutaArchivo; 
         this.siguiente = null;
     }
 
-    // Getters y setters
     public String getNombre() { return nombre; }
     public String getArtista() { return artista; }
     public String getDuracion() { return duracion; }
     public String getTipoMusica() { return tipoMusica; }
     public ImageIcon getImagen() { return imagen; }
-    public String getRutaArchivo() { return rutaArchivo; }  // Método para obtener la ruta del archivo
+    public String getRutaArchivo() { return rutaArchivo; } 
 
     public Cancion getSiguiente() { return siguiente; }
     public void setSiguiente(Cancion siguiente) { this.siguiente = siguiente; }
